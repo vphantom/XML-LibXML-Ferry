@@ -1,11 +1,12 @@
 !Build/
+.lwpcookies
 .last_cover_stats
-/META.yml
-/META.json
+/META.*
 /MYMETA.*
 *.o
 *.pm.tdy
 *.bs
+pod2htm*.tmp
 
 # Devel::Cover
 cover_db/

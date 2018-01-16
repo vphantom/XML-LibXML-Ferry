@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     NAME             => 'XML::LibXML::Ferry',
-    AUTHOR           => q{Stéphane Lavergne <lis@imars.com>},
+    AUTHOR           => q{Stephane Lavergne <https://github.com/vphantom/>},
     VERSION_FROM     => 'lib/XML/LibXML/Ferry.pm',
     ABSTRACT_FROM    => 'lib/XML/LibXML/Ferry.pm',
     LICENSE          => 'mit',
