@@ -21,6 +21,7 @@ package XML::LibXML::Ferry;
 use 5.006;
 use strict;
 use warnings;
+use Scalar::Util qw(blessed);
 
 use XML::LibXML;
 
@@ -300,7 +301,7 @@ sub XML::LibXML::Element::ferry {
 		# Process as a single META tag, ignoring other attributes
 		push @store, [
 			$self->{ $ex->{__meta_name} },
-			(defined $ex->{__meta_content} ? $self->{ $ex->{__meta_content} } : $self->textContent),
+			(defined $ex->{__meta_content} ? $self->{ $ex->{__meta_content} } : $self),
 		];
 	} else {
 		push @store, [ $_,            $self->{$_}        ] foreach (%$self);
@@ -334,8 +335,7 @@ sub XML::LibXML::Element::ferry {
 		if (ref $sub) {
 			$val = $sub->($obj, $val);
 		} elsif ($sub) {
-			require $sub;  # No eval: we want this to fail if the class doesn't exist
-			$val = $sub->new($val);
+			$val = $sub->new($val);  # No eval: we want this to fail if the class doesn't exist
 		} else {
 			$val = $val->textContent if ref($val);
 		};
@@ -343,8 +343,8 @@ sub XML::LibXML::Element::ferry {
 		# Save value if it wasn't eaten up by SUB
 		if (defined $val) {
 			my $m = $key;
-			$m .= 's' unless $obj->can($m);
-			if ($obj->can($m)) {
+			$m .= 's' unless blessed($obj) && $obj->can($m);
+			if (blessed($obj) && $obj->can($m)) {
 				$obj->$m($val);
 			} else {
 				$key .= 's' unless exists $obj->{$key};
