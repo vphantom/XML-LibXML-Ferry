@@ -105,24 +105,20 @@ $root->ferry($rootObj, {
 	},
 	Depth => {
 		Base => {
-			Sub => [ 'nest', 'Test::FerryObject' ],
+			Sub => [ 'nest', 'Test::FerryObject2' ],
 		},
 	},
 });
 
-isa_ok($rootObj->{_nest}, 'Test::FerryObject', 'Ferry to object can nest');
+isa_ok($rootObj->{_nest}, 'Test::FerryObject2', 'Ferry to object can nest');
 cmp_deeply(
 	$rootObj,
 	noclass({
 		_url   => 'https://example.com/',
 		_email => 'foo3@example.com',
 		_nest  => {
-			_url   => undef,
-			_email => undef,
-			_nest  => undef,
 			_text  => 'TestSubTwo1',
 		},
-		_text  => undef,
 	}),
 	'Ferry to object flattens'
 );

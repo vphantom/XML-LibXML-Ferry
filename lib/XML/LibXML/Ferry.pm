@@ -335,6 +335,9 @@ sub XML::LibXML::Element::ferry {
 		if (ref $sub) {
 			$val = $sub->($obj, $val);
 		} elsif ($sub) {
+			my $file = $sub;
+			$file =~ s|::|/|g;
+			require "$file.pm";
 			$val = $sub->new($val);  # No eval: we want this to fail if the class doesn't exist
 		} else {
 			$val = $val->textContent if ref($val);

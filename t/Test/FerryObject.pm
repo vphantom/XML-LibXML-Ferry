@@ -10,20 +10,8 @@ sub new {
 		_url   => undef,
 		_email => undef,
 		_nest  => undef,
-		_text  => undef,
 	};
-	bless $self, $class;
-
-	if (defined $el) {
-		$el->ferry($self, {
-			__meta_name => 'kind',
-			'foo' => {
-				SubTwo => 'text',
-			},
-		});
-		return undef unless defined $self->{_text};
-	};
-	return $self;
+	return bless $self, $class;
 };
 
 sub email {
@@ -39,11 +27,6 @@ sub url {
 sub nest {
 	my ($self, $val) = @_;
 	$self->{_nest} = $val;
-};
-
-sub text {
-	my ($self, $val) = @_;
-	$self->{_text} = $val;
 };
 
 1;
