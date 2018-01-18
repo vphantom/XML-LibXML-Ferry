@@ -11,7 +11,7 @@ use XML::LibXML::Ferry;
 use lib 't/';
 use Test::FerryObject;
 
-plan tests => 4;
+plan tests => 5;
 
 my $doc = XML::LibXML->load_xml(location => 't/document.xml');
 my $root = $doc->documentElement();
@@ -123,3 +123,132 @@ cmp_deeply(
 	'Ferry to object flattens'
 );
 
+
+## XML::LibXML::Document->toHash()
+## XML::LibXML::Element->toHash()
+#
+
+cmp_deeply(
+	$doc->toHash,
+	{
+		'__attributes' => {
+			'rootAttribute' => 'rootAttributeValue'
+		},
+		'FirstRoot' => [
+			{
+				'__attributes' => {
+					'firstRootAttribute1' => 'fra1',
+					'firstRootAttribute2' => 'fra2',
+					'unknown' => 'This is ignored',
+				},
+				'URL' => [
+					{
+						'__attributes' => {},
+						'__text' => 'https://example.com/',
+					},
+				],
+				'Bizarre' => [
+					{
+						'__attributes' => {},
+						'__text' => '41',
+					}
+				],
+				'Unsupported' => [
+					{
+						'__attributes' => {},
+						'__text' => 'This is ignored',
+					}
+				],
+			},
+		],
+		'Metas' => [
+			{
+				'__attributes' => {},
+				'Meta' => [
+					{
+						'__attributes' => {
+							'name' => 'email',
+							'value' => 'foo1@example.com',
+						},
+						'__text' => ''
+					},
+					{
+						'__attributes' => {
+							'name' => 'email',
+							'value' => 'foo2@example.com',
+						},
+						'__text' => ''
+					},
+					{
+						'__attributes' => {
+							'name' => 'email',
+							'value' => 'foo3@example.com',
+						},
+						'__text' => '',
+					}
+				],
+				'Attribute' => [
+					{
+						'__attributes' => {
+							'type' => 'color'
+						},
+						'__text' => 'Blue',
+					},
+					{
+						'__attributes' => {
+							'type' => 'size'
+						},
+						'__text' => 'Small',
+					}
+				]
+			}
+		],
+		'Depth' => [
+			{
+				'__attributes' => {},
+				'Base' => [
+					{
+						'__attributes' => {},
+						'Sub' => [
+							{
+								'__attributes' => {
+									'kind' => 'foo'
+								},
+								'SubOne' => [
+									{
+										'__attributes' => {},
+										'__text' => 'TestSubOne1',
+									}
+								],
+								'SubTwo' => [
+									{
+										'__attributes' => {},
+										'__text' => 'TestSubTwo1',
+									}
+								],
+							},
+							{
+								'__attributes' => {
+									'kind' => 'bar'
+								},
+								'SubOne' => [
+									{
+										'__attributes' => {},
+										'__text' => 'TestSubOne2',
+									}
+								],
+								'SubTwo' => [
+									{
+										'__attributes' => {},
+										'__text' => 'TestSubTwo2',
+									}
+								],
+							}
+						]
+					}
+				]
+			}
+		],
+	},
+	'toHash imports a whole document at once'
+);

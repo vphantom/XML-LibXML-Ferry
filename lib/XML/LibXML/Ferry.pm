@@ -194,7 +194,142 @@ as if it actually were
 S<C<<<< <foo>bar</foo> >>>>>
 .
 
-B<Example:>
+See L</EXAMPLES> for a detailed example.
+
+=cut
+
+sub XML::LibXML::Element::ferry {
+	my ($self, $obj, $ex) = @_;
+
+	# Reduce various key/value sources down to a single list.
+	#
+	# Because some targets can be opaque methods or arrayrefs, we allow
+	# multiple keys, hence the use of a 2D array instead of a hash.
+	#
+	# Each item is an ARRAYREF:
+	# [0] - Raw input attribute/node name
+	# [1] - String content or XML::LibXML::Element child
+	my @store;
+	if (exists $ex->{__meta_name}) {
+		# Process as a single META tag, ignoring other attributes
+		push @store, [
+			$self->{ $ex->{__meta_name} },
+			(defined $ex->{__meta_content} ? $self->{ $ex->{__meta_content} } : $self),
+		];
+	} else {
+		push @store, [ $_,            $self->{$_}        ] foreach (%$self);
+		push @store, [ $_->nodeName,  $_                 ] foreach ($self->childNodes);
+		push @store, [ $ex->{__text}, $self->textContent ] if exists $ex->{__text};
+	};
+
+	# Process each key/value found
+	foreach (@store) {
+		my ($key, $val) = @{ $_ };
+		my $sub = undef;
+
+		# Rename key, identify SUBREF, recurse HASHREFs
+		if (exists $ex->{ $key }) {
+			my $e = $ex->{ $key };
+			if (ref($e) eq 'ARRAY') {
+				$key = $e->[0];  # Override key
+				$sub = $e->[1];  # SUBREF or class name string
+			} elsif (ref($e) eq 'HASH') {
+				# Safely ignore the invalid case of setting a HASHREF on an attribute key
+				$val->ferry($obj, $e) if ref($val);  #  <-- RECURSION
+				next;
+			} else {
+				$key = $e;  # Override key
+			};
+		} else {
+			$key = lc($key);
+		};
+
+		# Reduce value to a string through SUB or textContent()
+		if (ref $sub) {
+			$val = $sub->($obj, $val);
+		} elsif ($sub) {
+			my $file = $sub;
+			$file =~ s|::|/|g;
+			require "$file.pm";
+			$val = $sub->new($val);  # No eval: we want this to fail if the class doesn't exist
+		} else {
+			$val = $val->textContent if ref($val);
+		};
+
+		# Save value if it wasn't eaten up by SUB
+		if (defined $val) {
+			my $m = $key;
+			$m .= 's' unless blessed($obj) && $obj->can($m);
+			if (blessed($obj) && $obj->can($m)) {
+				$obj->$m($val);
+			} else {
+				$key .= 's' unless exists $obj->{$key};
+				if (exists $obj->{$key}) {
+					if (ref($obj->{$key}) eq 'ARRAY') {
+						push @{ $obj->{$key} }, $val;
+					} else {
+						$obj->{$key} = $val;
+					};
+				};
+			};
+		};
+
+	};
+}
+
+=item C<B<XML::LibXML::Element::toHash>()>
+
+Convert an XML element tree into a recursive hash.  Each attribute is in a key
+C<__attributes> and each child node is recursively put in an array in its
+name.  A node without children elements will have C<__text> with its text
+content, which means that text interspersed with child nodes will I<not> be
+included in this hash representation.
+
+The resulting format is a bit verbose, but ideal for using L<Test::Deep> to
+compare XML fragments and for quick inspections.  (See L</EXAMPLES>.)
+
+=cut
+
+sub XML::LibXML::Element::toHash {
+	my ($self) = @_;
+	my $hash = { __attributes => {} };
+
+	# Grab attributes
+	$hash->{__attributes}{$_} = $self->{$_} foreach (keys %$self);
+
+	# Grab childNodes
+	my $elementNodeCount = 0;
+	if (length($self->childNodes) > 0) {
+		foreach ($self->childNodes) { 
+			if ($_->nodeType == XML_ELEMENT_NODE) {
+				$elementNodeCount++;
+				$hash->{$_->nodeName} = [] unless exists $hash->{$_->nodeName};
+				my $newhash = $_->toHash;
+				push(@{ $hash->{$_->nodeName} }, $newhash);
+			};
+		};
+	};
+	$hash->{__text} = $self->textContent unless $elementNodeCount;
+	return $hash;
+}
+
+=back
+
+=item C<B<XML::LibXML::Document::toHash>()>
+
+Convenience wrapper which invokes L<XML::LibXML::Element::toHash()> above on
+the document's C<documentElement>.
+
+=cut
+
+sub XML::LibXML::Document::toHash {
+	my ($self) = @_;
+	return $self->documentElement->toHash;
+}
+
+=head1 EXAMPLES
+
+B<ferry():>
 
 Given the following XML fragment as I<C<$root>>, an L<XML::LibXML::Element>:
 
@@ -283,88 +418,42 @@ This would make I<C<$thing>> contain:
 		],
 	}, 'Mystuff::Thing' );
 
-=cut
 
-sub XML::LibXML::Element::ferry {
-	my ($self, $obj, $ex) = @_;
 
-	# Reduce various key/value sources down to a single list.
-	#
-	# Because some targets can be opaque methods or arrayrefs, we allow
-	# multiple keys, hence the use of a 2D array instead of a hash.
-	#
-	# Each item is an ARRAYREF:
-	# [0] - Raw input attribute/node name
-	# [1] - String content or XML::LibXML::Element child
-	my @store;
-	if (exists $ex->{__meta_name}) {
-		# Process as a single META tag, ignoring other attributes
-		push @store, [
-			$self->{ $ex->{__meta_name} },
-			(defined $ex->{__meta_content} ? $self->{ $ex->{__meta_content} } : $self),
-		];
-	} else {
-		push @store, [ $_,            $self->{$_}        ] foreach (%$self);
-		push @store, [ $_->nodeName,  $_                 ] foreach ($self->childNodes);
-		push @store, [ $ex->{__text}, $self->textContent ] if exists $ex->{__text};
+
+
+
+
+B<toHash():>
+
+Given the following XML fragment:
+
+	<Example weirdName="test-example">
+		<Attribute name="location">1234 Main St</Attribute>
+		<Attribute name="phone">1-800-555-1212</Attribute>
+	</Example>
+
+L</toHash()> would return:
+
+	$VAR1 = {
+		'__attributes' => {
+			'weirdName' => 'test-example',
+		},
+		'Attribute' => [
+			{
+				'__attributes' => {
+					'name' => 'location',
+				},
+				'__text' => '1234 Main St',
+			},
+			{
+				'__attributes' => {
+					'name' => 'phone',
+				},
+				'__text' => '1-800-555-1212',
+			},
+		],
 	};
-
-	# Process each key/value found
-	foreach (@store) {
-		my ($key, $val) = @{ $_ };
-		my $sub = undef;
-
-		# Rename key, identify SUBREF, recurse HASHREFs
-		if (exists $ex->{ $key }) {
-			my $e = $ex->{ $key };
-			if (ref($e) eq 'ARRAY') {
-				$key = $e->[0];  # Override key
-				$sub = $e->[1];  # SUBREF or class name string
-			} elsif (ref($e) eq 'HASH') {
-				# Safely ignore the invalid case of setting a HASHREF on an attribute key
-				$val->ferry($obj, $e) if ref($val);  #  <-- RECURSION
-				next;
-			} else {
-				$key = $e;  # Override key
-			};
-		} else {
-			$key = lc($key);
-		};
-
-		# Reduce value to a string through SUB or textContent()
-		if (ref $sub) {
-			$val = $sub->($obj, $val);
-		} elsif ($sub) {
-			my $file = $sub;
-			$file =~ s|::|/|g;
-			require "$file.pm";
-			$val = $sub->new($val);  # No eval: we want this to fail if the class doesn't exist
-		} else {
-			$val = $val->textContent if ref($val);
-		};
-
-		# Save value if it wasn't eaten up by SUB
-		if (defined $val) {
-			my $m = $key;
-			$m .= 's' unless blessed($obj) && $obj->can($m);
-			if (blessed($obj) && $obj->can($m)) {
-				$obj->$m($val);
-			} else {
-				$key .= 's' unless exists $obj->{$key};
-				if (exists $obj->{$key}) {
-					if (ref($obj->{$key}) eq 'ARRAY') {
-						push @{ $obj->{$key} }, $val;
-					} else {
-						$obj->{$key} = $val;
-					};
-				};
-			};
-		};
-
-	};
-}
-
-=back
 
 =head1 AUTHOR
 
