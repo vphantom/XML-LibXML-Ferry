@@ -313,8 +313,6 @@ sub XML::LibXML::Element::toHash {
 	return $hash;
 }
 
-=back
-
 =item C<B<XML::LibXML::Document::toHash>()>
 
 Convenience wrapper which invokes L<XML::LibXML::Element::toHash()> above on
@@ -326,6 +324,8 @@ sub XML::LibXML::Document::toHash {
 	my ($self) = @_;
 	return $self->documentElement->toHash;
 }
+
+=back
 
 =head1 EXAMPLES
 
