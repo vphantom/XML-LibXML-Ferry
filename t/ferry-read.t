@@ -11,7 +11,7 @@ use XML::LibXML::Ferry;
 use lib 't/';
 use Test::FerryObject;
 
-plan tests => 5;
+plan tests => 6;
 
 my $doc = XML::LibXML->load_xml(location => 't/document.xml');
 my $root = $doc->documentElement();
@@ -128,6 +128,17 @@ cmp_deeply(
 ## XML::LibXML::Element->toHash()
 #
 
+cmp_deeply(
+	$doc->getElementsByTagName('Shallow')->[0]->toHash,
+	{
+		'__attributes' => {},
+		'Inside' => [{
+			'__attributes' => { name => 'value' },
+			'__text'       => '',
+		}]
+	},
+	'toHash handles small elements gracefully'
+);
 cmp_deeply(
 	$doc->toHash,
 	{
@@ -249,6 +260,13 @@ cmp_deeply(
 				]
 			}
 		],
+		'Shallow' => [{
+			'__attributes' => {},
+			'Inside' => [{
+				'__attributes' => { name => 'value' },
+				'__text'       => '',
+			}]
+		}],
 	},
 	'toHash imports a whole document at once'
 );

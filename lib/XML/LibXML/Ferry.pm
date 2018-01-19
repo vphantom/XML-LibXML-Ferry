@@ -299,13 +299,14 @@ sub XML::LibXML::Element::toHash {
 
 	# Grab childNodes
 	my $elementNodeCount = 0;
-	if (length($self->childNodes) > 0) {
+	if ($self->hasChildNodes) {
 		foreach ($self->childNodes) { 
 			if ($_->nodeType == XML_ELEMENT_NODE) {
 				$elementNodeCount++;
 				$hash->{$_->nodeName} = [] unless exists $hash->{$_->nodeName};
 				my $newhash = $_->toHash;
 				push(@{ $hash->{$_->nodeName} }, $newhash);
+			} else {
 			};
 		};
 	};

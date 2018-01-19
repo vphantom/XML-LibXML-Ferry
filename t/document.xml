@@ -24,4 +24,5 @@
 			</Sub>
 		</Base>
 	</Depth>
+	<Shallow><Inside name="value"/></Shallow>
 </Root>
