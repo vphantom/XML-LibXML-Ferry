@@ -99,6 +99,24 @@ sub XML::LibXML::Element::add {
 	return $el;
 };
 
+=item C<B<XML::LibXML::Node::textNodeContent()>
+
+Iterate through each of the element's immediate children and create a string
+from text nodes found.  The result is stripped of leading and trailing
+whitespace.
+
+=cut
+
+sub XML::LibXML::Node::textNodeContent {
+	my ($self) = @_;
+	my $text = '';
+	foreach ($self->childNodes) {
+		$text .= $_->textContent if ($_->nodeType == XML_TEXT_NODE);
+	};
+	$text =~ s/^\s+|\s+$//g;
+	return $text;
+}
+
 =item C<B<XML::LibXML::Element::ferry>( I<$obj>, [I<$exceptions>] )>
 
 Iterate through each of the element's attributes, then each of its child
@@ -217,9 +235,9 @@ sub XML::LibXML::Element::ferry {
 			(defined $ex->{__meta_content} ? $self->{ $ex->{__meta_content} } : $self),
 		];
 	} else {
-		push @store, [ $_,            $self->{$_}        ] foreach (%$self);
-		push @store, [ $_->nodeName,  $_                 ] foreach ($self->childNodes);
-		push @store, [ $ex->{__text}, $self->textContent ] if exists $ex->{__text};
+		push @store, [ $_,            $self->{$_}            ] foreach (%$self);
+		push @store, [ $_->nodeName,  $_                     ] foreach ($self->childNodes);
+		push @store, [ $ex->{__text}, $self->textNodeContent ] if exists $ex->{__text};
 	};
 
 	# Process each key/value found
@@ -244,7 +262,7 @@ sub XML::LibXML::Element::ferry {
 			$key = lc($key);
 		};
 
-		# Reduce value to a string through SUB or textContent()
+		# Reduce value to a string through SUB or textNodeContent()
 		if (ref $sub) {
 			$val = $sub->($obj, $val);
 		} elsif ($sub) {
@@ -253,7 +271,7 @@ sub XML::LibXML::Element::ferry {
 			require "$file.pm";
 			$val = $sub->new($val);  # No eval: we want this to fail if the class doesn't exist
 		} else {
-			$val = $val->textContent if ref($val);
+			$val = $val->textNodeContent if ref($val);
 		};
 
 		# Save value if it wasn't eaten up by SUB
@@ -297,19 +315,16 @@ sub XML::LibXML::Element::toHash {
 	$hash->{__attributes}{$_} = $self->{$_} foreach (keys %$self);
 
 	# Grab childNodes
-	$hash->{__text} = '';
 	if ($self->hasChildNodes) {
 		foreach ($self->childNodes) { 
 			if ($_->nodeType == XML_ELEMENT_NODE) {
 				$hash->{$_->nodeName} = [] unless exists $hash->{$_->nodeName};
 				my $newhash = $_->toHash;
 				push(@{ $hash->{$_->nodeName} }, $newhash);
-			} elsif ($_->nodeType == XML_TEXT_NODE) {
-				$hash->{__text} .= $_->textContent;
 			};
 		};
 	};
-	$hash->{__text} =~ s/^\s+|\s+$//g;
+	$hash->{__text} = $self->textNodeContent;
 	return $hash;
 }
 

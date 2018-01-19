@@ -40,6 +40,8 @@ my $hdoc = {
 	answer  => undef,
 	text    => undef,
 	nono    => undef,
+	short   => undef,
+	long    => undef,
 };
 $root->ferry($hdoc, {
 	FirstRoot => {
@@ -69,6 +71,12 @@ $root->ferry($hdoc, {
 			},
 		},
 	},
+	ShallowIsh => {
+		Inside => {
+			__text => 'short',
+		},
+		__text => 'long',
+	},
 });
 
 cmp_deeply(
@@ -87,6 +95,8 @@ cmp_deeply(
 		answer => 42,
 		text   => 'TestSubOne2',
 		nono   => undef,
+		short  => 'inside text',
+		long   => 'This is an example sentence.',
 	},
 	'Ferry to hash flattens'
 );
