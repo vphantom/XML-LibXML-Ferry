@@ -269,7 +269,7 @@ cmp_deeply(
 			'__text' => 'This is an example sentence.',
 			'Inside' => [{
 				'__attributes' => { name => 'value' },
-				'__text'       => '',
+				'__text'       => 'inside text',
 			}]
 		}],
 	},

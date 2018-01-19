@@ -26,7 +26,7 @@
 	</Depth>
 	<Shallow><Inside name="value"/></Shallow>
 	<ShallowIsh>
-		<Inside name="value"/>
+		<Inside name="value">inside text</Inside>
 		<!-- This comment will be ignored -->
 		This is an example sentence.
 	</ShallowIsh>
