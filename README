@@ -1,6 +1,6 @@
-# XML-LibXML-Ferry v0.8.1
+# XML-LibXML-Ferry v0.8.2
 
-[![Build Status](https://travis-ci.org/vphantom/XML-LibXML-Ferry.svg?branch=v0.8.1)](https://travis-ci.org/vphantom/XML-LibXML-Ferry) [![Coverage Status](https://coveralls.io/repos/github/vphantom/XML-LibXML-Ferry/badge.svg?branch=v0.8.1)](https://coveralls.io/github/vphantom/XML-LibXML-Ferry?branch=v0.8.1)
+[![Build Status](https://travis-ci.org/vphantom/XML-LibXML-Ferry.svg?branch=v0.8.2)](https://travis-ci.org/vphantom/XML-LibXML-Ferry) [![Coverage Status](https://coveralls.io/repos/github/vphantom/XML-LibXML-Ferry/badge.svg?branch=v0.8.2)](https://coveralls.io/github/vphantom/XML-LibXML-Ferry?branch=v0.8.2)
 
 Marshall LibXML nodes and native objects.
 
