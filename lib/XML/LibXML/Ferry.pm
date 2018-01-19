@@ -26,7 +26,7 @@ use Scalar::Util qw(blessed);
 use XML::LibXML;
 
 BEGIN {
-	our $VERSION = 'v0.8.2';
+	our $VERSION = 'v0.8.3';
 }
 
 =head1 METHODS

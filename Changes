@@ -1,8 +1,9 @@
 Revision history for XML-LibXML-Ferry
 
-v0.8.2  2018-01-19
+v0.8.3  2018-01-19
         Bugfix: use hasChildNodes() instead of counting
 		  Feature: fully handle mixes of text and element children
+		  Add textNodeContent() for immediate text node contents only
 
 v0.8.0  2018-01-18
         Add toHash() methods to help compare XML trees
