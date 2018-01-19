@@ -132,7 +132,8 @@ cmp_deeply(
 	$doc->getElementsByTagName('Shallow')->[0]->toHash,
 	{
 		'__attributes' => {},
-		'Inside' => [{
+		'__text'       => '',
+		'Inside'       => [{
 			'__attributes' => { name => 'value' },
 			'__text'       => '',
 		}]
@@ -142,9 +143,8 @@ cmp_deeply(
 cmp_deeply(
 	$doc->toHash,
 	{
-		'__attributes' => {
-			'rootAttribute' => 'rootAttributeValue'
-		},
+		'__attributes' => { 'rootAttribute' => 'rootAttributeValue' },
+		'__text'    => '',
 		'FirstRoot' => [
 			{
 				'__attributes' => {
@@ -152,6 +152,7 @@ cmp_deeply(
 					'firstRootAttribute2' => 'fra2',
 					'unknown' => 'This is ignored',
 				},
+				'__text' => '',
 				'URL' => [
 					{
 						'__attributes' => {},
@@ -175,6 +176,7 @@ cmp_deeply(
 		'Metas' => [
 			{
 				'__attributes' => {},
+				'__text' => '',
 				'Meta' => [
 					{
 						'__attributes' => {
@@ -200,15 +202,11 @@ cmp_deeply(
 				],
 				'Attribute' => [
 					{
-						'__attributes' => {
-							'type' => 'color'
-						},
+						'__attributes' => { 'type' => 'color' },
 						'__text' => 'Blue',
 					},
 					{
-						'__attributes' => {
-							'type' => 'size'
-						},
+						'__attributes' => { 'type' => 'size' },
 						'__text' => 'Small',
 					}
 				]
@@ -217,51 +215,58 @@ cmp_deeply(
 		'Depth' => [
 			{
 				'__attributes' => {},
-				'Base' => [
-					{
-						'__attributes' => {},
-						'Sub' => [
-							{
-								'__attributes' => {
-									'kind' => 'foo'
-								},
-								'SubOne' => [
-									{
-										'__attributes' => {},
-										'__text' => 'TestSubOne1',
-									}
-								],
-								'SubTwo' => [
-									{
-										'__attributes' => {},
-										'__text' => 'TestSubTwo1',
-									}
-								],
-							},
-							{
-								'__attributes' => {
-									'kind' => 'bar'
-								},
-								'SubOne' => [
-									{
-										'__attributes' => {},
-										'__text' => 'TestSubOne2',
-									}
-								],
-								'SubTwo' => [
-									{
-										'__attributes' => {},
-										'__text' => 'TestSubTwo2',
-									}
-								],
-							}
-						]
-					}
-				]
+				'__text'       => '',
+				'Base'         => [{
+					'__attributes' => {},
+					'__text' => '',
+					'Sub' => [
+						{
+							'__attributes' => { 'kind' => 'foo' },
+							'__text' => '',
+							'SubOne' => [
+								{
+									'__attributes' => {},
+									'__text' => 'TestSubOne1',
+								}
+							],
+							'SubTwo' => [
+								{
+									'__attributes' => {},
+									'__text' => 'TestSubTwo1',
+								}
+							],
+						},
+						{
+							'__attributes' => { 'kind' => 'bar' },
+							'__text' => '',
+							'SubOne' => [
+								{
+									'__attributes' => {},
+									'__text' => 'TestSubOne2',
+								}
+							],
+							'SubTwo' => [
+								{
+									'__attributes' => {},
+									'__text' => 'TestSubTwo2',
+								}
+							],
+						}
+					]
+				}]
 			}
 		],
 		'Shallow' => [{
 			'__attributes' => {},
+			'__text' => '',
+			'Inside' => [{
+				'__attributes' => { name => 'value' },
+				'__text'       => '',
+			}]
+		}],
+		'ShallowIsh' => [{
+			'__attributes' => {},
+			'__text' => 'This is an example sentence.',
 			'Inside' => [{
 				'__attributes' => { name => 'value' },
 				'__text'       => '',

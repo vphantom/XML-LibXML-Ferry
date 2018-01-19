@@ -281,9 +281,8 @@ sub XML::LibXML::Element::ferry {
 
 Convert an XML element tree into a recursive hash.  Each attribute is in a key
 C<__attributes> and each child node is recursively put in an array in its
-name.  A node without children elements will have C<__text> with its text
-content, which means that text interspersed with child nodes will I<not> be
-included in this hash representation.
+name.  Key C<__text> contains the merged text nodes directly in the element,
+with intial and trailing whitespace stripped.
 
 The resulting format is a bit verbose, but ideal for using L<Test::Deep> to
 compare XML fragments and for quick inspections.  (See L</EXAMPLES>.)
@@ -298,19 +297,19 @@ sub XML::LibXML::Element::toHash {
 	$hash->{__attributes}{$_} = $self->{$_} foreach (keys %$self);
 
 	# Grab childNodes
-	my $elementNodeCount = 0;
+	$hash->{__text} = '';
 	if ($self->hasChildNodes) {
 		foreach ($self->childNodes) { 
 			if ($_->nodeType == XML_ELEMENT_NODE) {
-				$elementNodeCount++;
 				$hash->{$_->nodeName} = [] unless exists $hash->{$_->nodeName};
 				my $newhash = $_->toHash;
 				push(@{ $hash->{$_->nodeName} }, $newhash);
-			} else {
+			} elsif ($_->nodeType == XML_TEXT_NODE) {
+				$hash->{__text} .= $_->textContent;
 			};
 		};
 	};
-	$hash->{__text} = $self->textContent unless $elementNodeCount;
+	$hash->{__text} =~ s/^\s+|\s+$//g;
 	return $hash;
 }
 
