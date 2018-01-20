@@ -119,8 +119,8 @@ sub XML::LibXML::Node::textNodeContent {
 
 =item C<B<XML::LibXML::Element::ferry>( I<$obj>, [I<$exceptions>] )>
 
-Iterate through each of the element's attributes, then each of its child
-nodes.
+Iterate through each of the element's attributes (including namespaced ones),
+then each of its child nodes.
 
 The lowercased attribute or node name is matched against I<C<$obj>>'s methods.
 Without a match, a second try is made with an append C<s>.  With still no
@@ -238,6 +238,11 @@ sub XML::LibXML::Element::ferry {
 		push @store, [ $_,            $self->{$_}            ] foreach (%$self);
 		push @store, [ $_->nodeName,  $_                     ] foreach ($self->childNodes);
 		push @store, [ $ex->{__text}, $self->textNodeContent ] if exists $ex->{__text};
+		# Namespaced attributes we're explicitly looking for
+		# (XML::LibXML::AttributeHash uses Clark notation.)
+		foreach (grep { /:/ } keys %{ $ex }) {
+			push @store, [ $_, $self->getAttribute($_) ] if $self->hasAttribute($_);
+		};
 	};
 
 	# Process each key/value found

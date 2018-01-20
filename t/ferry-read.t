@@ -33,6 +33,7 @@ sub _answer {
 }
 
 my $hdoc = {
+	lang    => undef,
 	url     => undef,
 	emails  => [],
 	color   => undef,
@@ -44,9 +45,11 @@ my $hdoc = {
 	long    => undef,
 };
 $root->ferry($hdoc, {
-	FirstRoot => {
+	'xml:lang' => 'lang',
+	'xml:foo'  => '__IGNORE',
+	FirstRoot  => {
 		firstRootAttribute1 => { 'nono' => 'nono' },
-		Bizarre => [ 'answer', \&_answer ],
+		Bizarre             => [ 'answer', \&_answer ],
 		# URL is implicit
 	},
 	Metas => {
@@ -82,6 +85,7 @@ $root->ferry($hdoc, {
 cmp_deeply(
 	$hdoc,
 	{
+		lang => 'fr-CA',
 		url => 'https://example.com/',
 		emails => [
 			'foo1@example.com',
@@ -153,7 +157,10 @@ cmp_deeply(
 cmp_deeply(
 	$doc->toHash,
 	{
-		'__attributes' => { 'rootAttribute' => 'rootAttributeValue' },
+		'__attributes' => {
+			'rootAttribute' => 'rootAttributeValue',
+			'{http://www.w3.org/XML/1998/namespace}lang' => 'fr-CA',
+		},
 		'__text'    => '',
 		'FirstRoot' => [
 			{

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Root rootAttribute="rootAttributeValue">
+<Root xml:lang="fr-CA" rootAttribute="rootAttributeValue">
 	<FirstRoot firstRootAttribute1="fra1" firstRootAttribute2="fra2" unknown="This is ignored">
 		<URL>https://example.com/</URL>
 		<Bizarre>41</Bizarre>
