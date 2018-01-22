@@ -1,5 +1,8 @@
 Revision history for XML-LibXML-Ferry
 
+v0.8.5  2018-01-22
+        Fixed minor typo in POD documentation
+
 v0.8.4  2018-01-20
         Add support for namespaced attributes
 
