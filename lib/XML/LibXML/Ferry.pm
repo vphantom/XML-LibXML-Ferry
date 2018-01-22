@@ -99,7 +99,7 @@ sub XML::LibXML::Element::add {
 	return $el;
 };
 
-=item C<B<XML::LibXML::Node::textNodeContent()>
+=item C<B<XML::LibXML::Node::textNodeContent>()>
 
 Iterate through each of the element's immediate children and create a string
 from text nodes found.  The result is stripped of leading and trailing
